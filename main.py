@@ -259,19 +259,19 @@ def main(args):
     logger.info("params : %s", vars(args))
     ct.mkdirs(args.save_data_path)
 
-    # graph = nx.from_numpy_matrix(np.load(osp.join(args.graph_path, str(year)+"_adj.npz"))["x"])
-    graph = nx.from_numpy_matrix(pd.read_csv(osp.join(args.graph_path), header=None).values)
+    #graph = nx.from_numpy_matrix(np.load(osp.join(args.graph_path, str(year)+"_adj.npz"))["x"])
+    graph = nx.from_numpy_matrix(np.load(osp.join(args.graph_path)))
     vars(args)["graph_size"] = graph.number_of_nodes()
     vars(args)["year"] = year
     # 如果data_process为真,则预处理数据,否则直接加载
     # inputs = generate_samples(31, osp.join(args.save_data_path, str(year)+'_30day'), np.load(osp.join(args.raw_data_path, str(year)+".npz"))["x"], graph, val_test_mix=True) \
-    inputs = generate_samples(10, "./data/PEMS08/", np.load("./data/PEMS08/PEMS08.npz")["data"], graph,
+    inputs = generate_samples(10, args.save_data_path, np.load(args.raw_data_path)["data"], graph,
                               val_test_mix=True) \
-        if args.data_process else np.load(osp.join(args.save_data_path, str(year) + "_30day.npz"), allow_pickle=True)
+        if args.data_process else np.load(osp.join(args.save_data_path), allow_pickle=True)
 
     # args.logger.info("[*] Year {} load from {}_30day.npz".format(args.year, osp.join(args.save_data_path, str(year))))
     # 加载邻接矩阵
-    adj = pd.read_csv(osp.join(args.graph_path), header=None).values
+    adj = np.load(osp.join(args.graph_path))
     adj = adj / (np.sum(adj, 1, keepdims=True) + 1e-6)
     vars(args)["adj"] = torch.from_numpy(adj).to(torch.float).to(args.device)
 
